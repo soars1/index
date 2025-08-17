@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Emmely</title>
-    <link rel="icon" type="image/svg+xml" href="dsa.png">
+    <link rel="icon" type="image/svg+xml" href="coracao.png">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
         body {
@@ -17,29 +17,57 @@
             overflow: hidden;
             position: relative;
         }
-        .hearts-bg {
+        /* Fade rosa-roxo nas bordas */
+        body::after {
+            content: "";
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
             pointer-events: none;
+            z-index: 2;
+            background: radial-gradient(
+                ellipse at center,
+                transparent 60%,
+                #7e3a9b 100%
+            );
+            opacity: 0.50;
+        }
+        /* Imagem de fundo lotus2.png com 20% de transparência */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: url('lotus2.png') no-repeat center center fixed;
+            background-size: 90vw auto;
+            opacity: 0.1;
             z-index: 0;
+            pointer-events: none;
         }
-        .heart {
+        body > *:not(.lotus-falling-bg):not(style) {
+            position: relative;
+            z-index: 3;
+        }
+        .lotus-falling-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .petal-falling {
             position: absolute;
-            width: 48px;
-            height: 48px;
-            opacity: 0.5;
-            animation: float 8s linear;
+            opacity: 0.2;
+            pointer-events: none;
+            animation: petal-fall linear;
         }
-        @keyframes float {
+        @keyframes petal-fall {
             0% {
-                transform: translateY(100vh) scale(1) rotate(-10deg);
-                opacity: 0.7;
+                transform: translateY(-120px) scale(1) rotate(0deg);
+                opacity: 0.2;
             }
             80% {
-                opacity: 0.7;
+                opacity: 0.2;
             }
             100% {
-                transform: translateY(-120vh) scale(1.2) rotate(10deg);
+                transform: translateY(120vh) scale(1.2) rotate(40deg);
                 opacity: 0;
             }
         }
@@ -47,7 +75,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            z-index: 1;
+            z-index: 4;
         }
         img {
             width: 320px;
@@ -69,20 +97,20 @@
             margin-top: 32px;
             background: rgba(83, 32, 79, 0.185);
             border-radius: 16px;
-            padding: 15px 28px;
+            padding: 10px 12px;
             box-shadow: 0 2px 12px rgba(0,0,0,0.10);
             display: flex;
             align-items: center;
-            gap: 18px;
+            gap: 10px;
         }
         .player button {
             background: #ff5ea979;
             border: none;
             color: #fff;
-            font-size: 1.4rem;
+            font-size: 1.1rem;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             cursor: pointer;
             transition: background 0.2s;
             display: flex;
@@ -94,18 +122,40 @@
             background: #943c6b;
         }
         .player input[type="range"] {
-            width: 100px;
+            width: 70px;
+        }
+        .seek-container {
+            width: 100%;
+            max-width: 130px;
+            margin-top: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .seek-bar-labels {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            font-size: 0.7rem;
+            color: #bbaad1;
+            margin-top: 1px;
+        }
+        #seekBar {
+            accent-color: #bbaad1;
+            height: 1px;
+            width: 100%;
+            margin: 0;
         }
     </style>
 </head>
 <body>
-    <div class="hearts-bg" id="hearts-bg"></div>
+    <div class="lotus-falling-bg" id="lotus-falling-bg"></div>
     <div class="container">
         <img src="emmely.png" alt="Imagem de Emmely">
         <div class="nome">Emmely</div>
         <div class="player">
-            <button id="playPauseBtn" aria-label="Play/Pause">
-                <svg id="iconPlayPause" width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <button id="playPauseBtn" aria-label="Tocar/Pausar">
+                <svg id="iconPlayPause" width="22" height="22" viewBox="0 0 32 32" fill="none">
                     <polygon id="iconPlay" points="8,6 26,16 8,26" fill="white"/>
                     <g id="iconPause" style="display:none">
                         <rect x="8" y="6" width="5" height="20" rx="1" fill="white"/>
@@ -113,17 +163,63 @@
                     </g>
                 </svg>
             </button>
-            <input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="0.7">
+            <input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="0.7" title="Volume">
+        </div>
+        <!-- Barra de progresso menor e intuitiva -->
+        <div class="seek-container">
+            <input id="seekBar" type="range" min="0" max="100" value="0" step="0.1" title="Arraste para pular" />
+            <div class="seek-bar-labels">
+                <span id="currentTime">0:00</span>
+                <span id="duration">0:00</span>
+            </div>
         </div>
         <audio id="audio" src="Rubel - Quando Bate Aquela Saudade [Áudio Oficial].mp3"></audio>
     </div>
     <script>
+        // SVG de pétala de lótus preta
+        const petalSVG = `
+            <svg viewBox="0 0 32 32" width="110" height="110">
+                <path d="M16 4
+                         C20 12, 28 16, 16 28
+                         C4 16, 12 12, 16 4Z"
+                      fill="black"/>
+            </svg>
+        `;
+
+        // Menos pétalas caindo e maiores
+        function createFallingPetal() {
+            const lotusFallingBg = document.getElementById('lotus-falling-bg');
+            const petal = document.createElement('div');
+            petal.className = 'petal-falling';
+            const size = 100 + Math.random() * 60; // pétalas bem maiores
+            petal.style.width = `${size}px`;
+            petal.style.height = `${size}px`;
+            petal.style.left = `${-10 + Math.random() * 120}vw`;
+            petal.style.top = `-120px`;
+            petal.style.animationDuration = `${10 + Math.random() * 6}s`;
+            petal.style.transform = `rotate(${Math.random() * 360}deg)`;
+            petal.innerHTML = petalSVG;
+            lotusFallingBg.appendChild(petal);
+
+            setTimeout(() => {
+                petal.remove();
+            }, 18000);
+        }
+
+        setInterval(createFallingPetal, 2500); // menos pétalas caindo
+        for (let i = 0; i < 3; i++) {
+            setTimeout(createFallingPetal, i * 1200);
+        }
+
         // Player de música
         const audio = document.getElementById('audio');
         const playPauseBtn = document.getElementById('playPauseBtn');
         const volumeSlider = document.getElementById('volumeSlider');
         const iconPlay = document.getElementById('iconPlay');
         const iconPause = document.getElementById('iconPause');
+        const seekBar = document.getElementById('seekBar');
+        const currentTimeEl = document.getElementById('currentTime');
+        const durationEl = document.getElementById('duration');
 
         function updateIcon(isPlaying) {
             if (isPlaying) {
@@ -161,30 +257,26 @@
             updateIcon(true);
         });
 
-        // Corações flutuantes
-        function createHeart() {
-            const heart = document.createElement('div');
-            heart.className = 'heart';
-            heart.style.left = Math.random() * 100 + 'vw';
-            heart.style.animationDuration = (6 + Math.random() * 4) + 's';
-            heart.innerHTML = `
-                <svg viewBox="0 0 32 29.6" width="48" height="48">
-                    <path d="M23.6,0c-2.7,0-5.1,1.3-6.6,3.3C15.5,1.3,13.1,0,10.4,0C4.7,0,0,4.7,0,10.4
-                        c0,11.1,16,19.2,16,19.2s16-8.1,16-19.2C32,4.7,27.3,0,23.6,0z"
-                        fill="#ff5eaa"/>
-                </svg>
-            `;
-            heart.style.top = '100vh';
-            document.getElementById('hearts-bg').appendChild(heart);
+        // Barra de progresso
+        audio.addEventListener('loadedmetadata', function() {
+            seekBar.max = audio.duration;
+            durationEl.textContent = formatTime(audio.duration);
+        });
 
-            setTimeout(() => {
-                heart.remove();
-            }, 10000);
-        }
+        audio.addEventListener('timeupdate', function() {
+            seekBar.value = audio.currentTime;
+            currentTimeEl.textContent = formatTime(audio.currentTime);
+        });
 
-        setInterval(createHeart, 700);
-        for (let i = 0; i < 12; i++) {
-            setTimeout(createHeart, i * 300);
+        seekBar.addEventListener('input', function() {
+            audio.currentTime = seekBar.value;
+        });
+
+        function formatTime(sec) {
+            sec = Math.floor(sec);
+            const m = Math.floor(sec / 60);
+            const s = sec % 60;
+            return m + ':' + (s < 10 ? '0' : '') + s;
         }
     </script>
 </body>
