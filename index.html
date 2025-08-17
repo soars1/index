@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Emmely</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <link rel="icon" type="image/svg+xml" href="dsa.png">
+    <link rel="icon" type="image/svg+xml" href="coracao.png">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
         body {
@@ -28,9 +27,9 @@
             background: radial-gradient(
                 ellipse at center,
                 transparent 60%,
-                #a94fcf 100%
+                #7e3a9b 100%
             );
-            opacity: 0.55;
+            opacity: 0.50;
         }
         /* Imagem de fundo lotus2.png com 20% de transparência */
         body::before {
@@ -39,7 +38,7 @@
             top: 0; left: 0; width: 100vw; height: 100vh;
             background: url('lotus2.png') no-repeat center center fixed;
             background-size: 90vw auto;
-            opacity: 0.2;
+            opacity: 0.1;
             z-index: 0;
             pointer-events: none;
         }
@@ -147,94 +146,34 @@
             width: 100%;
             margin: 0;
         }
-
-        /* Responsivo para celular na diagonal (paisagem) */
-        @media (max-width: 900px) and (orientation: landscape) {
-            .container {
-                flex-direction: row;
-                justify-content: center;
-                align-items: center;
-                padding: 0 2vw;
-                gap: 4vw;
-            }
-            img {
-                width: 38vw;
-                height: 38vw;
-                min-width: 120px;
-                min-height: 120px;
-                max-width: 220px;
-                max-height: 220px;
-            }
-            .nome {
-                font-size: 1.5rem;
-                margin-top: 0;
-                margin-left: 0.5em;
-            }
-            .player {
-                margin-top: 12px;
-                padding: 7px 6px;
-                gap: 6px;
-            }
-            .seek-container {
-                max-width: 40vw;
-            }
-        }
-        /* Responsivo para celular em pé */
-        @media (max-width: 600px) and (orientation: portrait) {
-            img {
-                width: 70vw;
-                height: 70vw;
-                max-width: 95vw;
-                max-height: 95vw;
-                min-width: 120px;
-                min-height: 120px;
-            }
-            .nome {
-                font-size: 1.3rem;
-                margin-top: 18px;
-            }
-            .player {
-                margin-top: 18px;
-                padding: 7px 6px;
-                gap: 6px;
-            }
-            .seek-container {
-                max-width: 90vw;
-            }
-            .container {
-                padding: 10vw 0 6vw 0;
-            }
-        }
     </style>
 </head>
 <body>
     <div class="lotus-falling-bg" id="lotus-falling-bg"></div>
     <div class="container">
         <img src="emmely.png" alt="Imagem de Emmely">
-        <div>
-            <div class="nome">Emmely</div>
-            <div class="player">
-                <button id="playPauseBtn" aria-label="Tocar/Pausar">
-                    <svg id="iconPlayPause" width="22" height="22" viewBox="0 0 32 32" fill="none">
-                        <polygon id="iconPlay" points="8,6 26,16 8,26" fill="white"/>
-                        <g id="iconPause" style="display:none">
-                            <rect x="8" y="6" width="5" height="20" rx="1" fill="white"/>
-                            <rect x="19" y="6" width="5" height="20" rx="1" fill="white"/>
-                        </g>
-                    </svg>
-                </button>
-                <input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="0.7" title="Volume">
-            </div>
-            <!-- Barra de progresso menor e intuitiva -->
-            <div class="seek-container">
-                <input id="seekBar" type="range" min="0" max="100" value="0" step="0.1" title="Arraste para pular" />
-                <div class="seek-bar-labels">
-                    <span id="currentTime">0:00</span>
-                    <span id="duration">0:00</span>
-                </div>
-            </div>
-            <audio id="audio" src="Rubel - Quando Bate Aquela Saudade [Áudio Oficial].mp3"></audio>
+        <div class="nome">Emmely</div>
+        <div class="player">
+            <button id="playPauseBtn" aria-label="Tocar/Pausar">
+                <svg id="iconPlayPause" width="22" height="22" viewBox="0 0 32 32" fill="none">
+                    <polygon id="iconPlay" points="8,6 26,16 8,26" fill="white"/>
+                    <g id="iconPause" style="display:none">
+                        <rect x="8" y="6" width="5" height="20" rx="1" fill="white"/>
+                        <rect x="19" y="6" width="5" height="20" rx="1" fill="white"/>
+                    </g>
+                </svg>
+            </button>
+            <input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="0.7" title="Volume">
         </div>
+        <!-- Barra de progresso menor e intuitiva -->
+        <div class="seek-container">
+            <input id="seekBar" type="range" min="0" max="100" value="0" step="0.1" title="Arraste para pular" />
+            <div class="seek-bar-labels">
+                <span id="currentTime">0:00</span>
+                <span id="duration">0:00</span>
+            </div>
+        </div>
+        <audio id="audio" src="equalize.mp3"></audio>
     </div>
     <script>
         // SVG de pétala de lótus preta
